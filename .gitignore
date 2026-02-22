@@ -2,3 +2,8 @@ signal-export/
 
 bin/
 obj/
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+*.user
+progress.json
