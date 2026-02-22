@@ -12,14 +12,17 @@ var chatId = config["Telegram:ChatId"]
     ?? throw new InvalidOperationException("Telegram:ChatId not configured.");
 var exportPath = config["Signal:ExportPath"]
     ?? throw new InvalidOperationException("Signal:ExportPath not configured.");
-var rateLimitDelayMs = int.Parse(config["RateLimitDelayMs"] ?? "500");
+var rateLimitDelayMs = int.TryParse(config["RateLimitDelayMs"], out var ms) ? ms : 500;
 var progressFile = config["ProgressFile"] ?? "progress.json";
 
-// Resolve relative export path from the app's base directory
+// Resolve relative paths from the app's base directory
 if (!Path.IsPathRooted(exportPath))
     exportPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, exportPath));
+if (!Path.IsPathRooted(progressFile))
+    progressFile = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, progressFile));
 
 Console.WriteLine($"Export path: {exportPath}");
+Console.WriteLine($"Progress file: {progressFile}");
 Console.WriteLine($"Rate limit: {rateLimitDelayMs}ms between messages");
 Console.WriteLine();
 
@@ -27,7 +30,9 @@ var tracker = new ProgressTracker(progressFile);
 var reader = new SignalExportReader(exportPath);
 var sender = new TelegramSender(botToken, chatId);
 
-var messages = reader.ReadMessages(tracker.LastSentDateMs).ToList();
+var messages = reader.ReadMessages(tracker.LastSentDateMs)
+    .OrderBy(m => m.DateSentMs)
+    .ToList();
 Console.WriteLine($"Found {messages.Count} messages to send.");
 Console.WriteLine();
 

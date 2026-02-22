@@ -50,7 +50,7 @@ public class TelegramSender
         }
     }
 
-    public async Task SendAttachmentAsync(SignalAttachment attachment, string? caption)
+    private async Task SendAttachmentAsync(SignalAttachment attachment, string? caption)
     {
         await using var stream = File.OpenRead(attachment.LocalFilePath);
         var fileName = Path.GetFileName(attachment.LocalFilePath);

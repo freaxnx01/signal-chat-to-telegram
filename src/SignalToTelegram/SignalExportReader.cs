@@ -15,6 +15,10 @@ public class SignalExportReader
     public IEnumerable<SignalMessage> ReadMessages(long afterDateSentMs = 0)
     {
         var jsonlPath = Path.Combine(_exportPath, "main.jsonl");
+        if (!Directory.Exists(_exportPath))
+            throw new DirectoryNotFoundException($"Export path not found: {_exportPath}");
+        if (!File.Exists(jsonlPath))
+            throw new FileNotFoundException($"main.jsonl not found in: {_exportPath}");
         var lines = File.ReadAllLines(jsonlPath);
 
         // Pass 1: find self recipient ID and chat ID
